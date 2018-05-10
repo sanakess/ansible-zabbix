@@ -1,0 +1,54 @@
+- name: Copy rpm file to server
+  copy:
+     src: centos7/zabbix-release-3.4-2.el7.noarch.rpm
+     dest: /tmp/zabbix-release-3.4-2.el7.noarch.rpm
+
+- name: install zabbix repo centos 7 x64
+  yum:
+    name: /tmp/zabbix-release-3.4-2.el7.noarch.rpm
+    state: present
+  when: ansible_distribution_major_version == "7"
+
+- name: install zabbix repo centos 6 x32
+  yum:
+    name: http://repo.zabbix.com/zabbix/3.4/rhel/6/i386/zabbix-release-3.4-1.el6.noarch.rpm
+    state: present
+  when: ansible_distribution == 'CentOS' and ansible_distribution_version == '6'
+
+- name: install zabbix-agent
+  yum:
+    name: zabbix-agent
+    state: latest
+
+
+- name: "Get getenforce binary"
+  stat:
+    path: /usr/sbin/getenforce
+  register: getenforce_bin
+
+- name: "Collect getenforce output"
+  command: getenforce
+  register: sestatus
+  when: 'getenforce_bin.stat.exists'
+  changed_when: false
+
+- name: "Set zabbix_selinux to true if getenforce returns Enforcing or Permissive"
+  set_fact:
+    zabbix_selinux: "{{ true }}"
+  when: 'getenforce_bin.stat.exists and ("Enforcing" in sestatus.stdout or "Permissive" in sestatus.stdout)'
+
+- name: "Install policycoreutils-python"
+  package:
+    name: policycoreutils-python
+    state: latest
+  when: zabbix_selinux
+  ignore_errors: True
+
+- name: "Allow zabbix_agent to start (SELinux)"
+  selinux_permissive:
+    name: zabbix_agent_t
+    permissive: true
+  when:
+    - zabbix_selinux
+
+

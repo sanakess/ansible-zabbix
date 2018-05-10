@@ -1,0 +1,8 @@
+ansible_connection: ssh
+
+#uninstall zabbix-agent. Default to "false". Set to "true" if you want to delete zabbix-agent
+uninstall_zabbix_agent: false
+
+#zabbix_checks_active. Default to "true". Set to "false" if you want to set passive checks
+zabbix_checks_active: true
+

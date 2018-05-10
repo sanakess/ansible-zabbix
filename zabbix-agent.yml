@@ -1,0 +1,8 @@
+###########zabbix-agent#########
+- hosts: zabbix-clients
+  become: yes
+  roles:
+  - zabbix_agent
+  - zabbix_agent_systemd
+
+

@@ -1,0 +1,49 @@
+- name: install libglib2.0-bin
+  apt:
+    name: libglib2.0-bin
+    state: latest
+  when: ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu'
+
+- name: copy systemd.so file
+  copy:
+    src: centos7/libzbxsystemd.so
+    dest: /etc/zabbix/zabbix_agentd.d/
+  when: ansible_distribution == 'CentOS' or ansible_distribution == 'Red Hat Enterprise Linux'
+
+- name: copy systemd.so file
+  copy:
+    src: debian9/libzbxsystemd.so
+    dest: /etc/zabbix/zabbix_agentd.d/
+  when: ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu'
+
+- name: copy libzbxsystemd.conf
+  copy:
+    src: libzbxsystemd.conf
+    dest: /etc/zabbix/zabbix_agentd.d/
+
+- name: copy libzbxsystemd.pp
+  copy:
+    src: centos7/libzbxsystemd.pp
+    dest: /etc/zabbix/zabbix_agentd.d/
+  when: ansible_distribution == 'CentOS' or ansible_distribution == 'Red Hat Enterprise Linux'
+
+- name: add selinux module
+  shell: semodule -v -i /etc/zabbix/zabbix_agentd.d/libzbxsystemd.pp
+  when: ansible_distribution == 'CentOS' or ansible_distribution == 'Red Hat Enterprise Linux'
+
+#- name: additional changes
+#  shell: |
+#    sed -i -e "s/.*DefaultCPUAccounting=.*/DefaultCPUAccounting=yes/g" /etc/systemd/system.conf
+#    sed -i -e "s/.*DefaultBlockIOAccounting=.*/DefaultBlockIOAccounting=yes/g" /etc/systemd/system.conf
+#    sed -i -e "s/.*DefaultMemoryAccounting=.*/DefaultMemoryAccounting=yes/g" /etc/systemd/system.conf
+#    systemctl daemon-reexec
+#    systemctl restart zabbix-agent
+
+- name: chown zabbix /etc/zabbix/zabbix_agentd.d/
+  shell: chown -R zabbix /etc/zabbix/zabbix_agentd.d/
+
+- name: restart zabbix
+  service:
+    name: zabbix-agent
+    state: restarted
+

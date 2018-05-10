@@ -1,0 +1,27 @@
+- name: stop zabbix-agent
+  service:
+    name: zabbix-agent
+    state: stopped
+
+- name: uninstall zabbix-agent deb
+  apt: 
+    name: zabbix-agent
+    state: absent
+    purge: yes
+  when: ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu'
+
+- name: uninstall zabbix-agent cent
+  yum:
+    name: zabbix-agent
+    state: absent
+    when: ansible_distribution == 'CentOS' or ansible_distribution == 'Red Hat Enterprise Linux'
+
+- name: remove /var/run/zabbix/
+  file:
+    path: /var/run/zabbix/
+    state: absent
+
+- name: remove /etc/zabbix/
+  file:
+    path: /etc/zabbix/
+    state: absent

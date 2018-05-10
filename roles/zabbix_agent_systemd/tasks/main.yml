@@ -1,0 +1,4 @@
+- include_tasks: install_zabbix_agent_systemd.yml
+  when: 
+    - uninstall_zabbix_agent == false
+

@@ -1,0 +1,29 @@
+- name: Copy deb file to client (deb8)
+  copy:
+     src: debian8/zabbix-release_3.4-1+jessie_all.deb
+     dest: /tmp/
+  when: ansible_distribution_major_version == '8'
+
+- name: Copy deb file to client (deb9)
+  copy:
+     src: debian9/zabbix-release_3.4-1+stretch_all.deb
+     dest: /tmp/
+  when: ansible_distribution_major_version == '9'
+
+- name: install zabbix repo debian 8 x64
+  apt:
+    deb: /tmp/zabbix-release_3.4-1+jessie_all.deb
+    state: present
+  when: ansible_distribution_major_version == "8"
+
+- name: install zabbix repo debian 9 x64
+  apt:
+    deb: /tmp/zabbix-release_3.4-1+stretch_all.deb
+    state: present
+  when: ansible_distribution_major_version == "9"
+
+- name: install zabbix-agent
+  apt:
+    name: zabbix-agent
+    state: latest
+    update_cache: yes
